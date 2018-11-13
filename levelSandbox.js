@@ -4,80 +4,85 @@
 
 const level = require('level');
 const chainDB = './chaindata';
-const db = level(chainDB);
+//const db = level(chainDB);
 
-// Add data to levelDB with key/value pair
-function addLevelDBData(key,value) {
-  return new Promise(function(resolve, reject) {
-    db.put(key, value, function(err) {
-      if (err) {
-        console.log('Block ' + key + ' submission failed', err);
-        reject(err);
-      }
-      resolve(key, value);
+
+class DBModel {
+  constructor() {
+    this.db = level(chainDB);
+  }
+
+  // Add data to levelDB with key/value pair
+  addLevelDBData(key,value) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.db.put(key, value, function(err) {
+        if (err) {
+          console.log('Block ' + key + ' submission failed', err);
+          reject(err);
+        }
+        resolve(key, value);
+      });
     });
-  });
-}
+  }
 
 
-
-// Get data from levelDB with key
-function getLevelDBData(key){
-  return new Promise(function(resolve, reject) {
-    db.get(key, function(err, value) {
-      if (err) {
-        console.log('Not found!', err);
-        reject(err)
-      }
-      console.log('Value = ' + value);
-      resolve(value)
+  // Get data from levelDB with key
+  getLevelDBData(key){
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.db.get(key, function(err, value) {
+        if (err) {
+          console.log('Not found!', err);
+          reject(err)
+        }
+        resolve(value)
+      });
     });
-  });
-}
+  }
 
-// Add data to levelDB with value
-function addDataToLevelDB(value) {
+  // Add data to levelDB with value
+  addDataToLevelDB(value) {
+    let self = this;
     let i = 0;
     return new Promise(function(resolve, reject) {
-      db.createReadStream()
+      self.db.createReadStream()
+          .on('data', function(data) {
+            i++;
+          })
+          .on('error', function(err) {
+            console.log('Unable to read data stream!', err)
+            reject(err)
+          })
+          .on('close', function() {
+            console.log('Block #' + i);
+            self.addLevelDBData(i, value).then((key) => {
+              console.log('Block #' + key);
+            }).catch((err) => {
+              console.log(err);
+            });
+            resolve(value);
+          });
+        });
+  }
+
+  // Get the count of all keys within the database
+  getLevelDBCount() {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let count = 0;
+      self.db.createReadStream()
         .on('data', function(data) {
-          i++;
+          count++
         })
         .on('error', function(err) {
-          console.log('Unable to read data stream!', err)
-          reject(err)
+          reject('Unable to get the data', err)
         })
         .on('close', function() {
-          console.log('Block #' + i);
-          addLevelDBData(i, value).then((key) => {
-            console.log('Block #' + key);
-          }).catch((err) => {
-            console.log(err);
-          });
-          resolve(value);
+          resolve(count)
         });
-      });
-}
-
-// Get the count of all keys within the database
-function getLevelDBCount() {
-  return new Promise(function(resolve, reject) {
-    let count = 0
-    db.createReadStream()
-      .on('data', function(data) {
-        count++
-      })
-      .on('error', function(err) {
-        console.log(err)
-        reject(err)
-      })
-      .on('close', function() {
-        resolve(count)
-      })
-      .on('end', function() {
-        console.log("Closing stream")
-      })
-  });
+    });
+  }
 }
 
 
@@ -94,7 +99,8 @@ function getLevelDBCount() {
 
 /* ===== exporting these functions for the simplechain ========================|
 |*/
-module.exports = {
+module.exports.Model = DBModel;
+/*module.exports = {
   addBlockData: function(key, value) {
     addLevelDBData(key,value)
   },
@@ -107,13 +113,16 @@ module.exports = {
   getBlockLength: function() {
     getLevelDBCount()
   }
-};
+};*/
+
+/*const model = new DBModel();
 
 (function theLoop (i) {
   setTimeout(function () {
-    addDataToLevelDB("Testing data").then((key) => {
+    model.addDataToLevelDB("Testing data").then((key) => {
       console.log('key: ' + key);
     }).catch((err) => {console.log(err); });
     if (--i) theLoop(i);
   }, 100);
 })(10);
+*/
