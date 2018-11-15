@@ -29,71 +29,53 @@ class Blockchain{
     this.chain = [];
 		this.model = new Model.Model();
     this.addBlock(new Block("First block in the chain - Genesis block"));
+		// Would like the Genisis height and currentheight to be attributes here.
   }
 
   // Add new block
   addBlock(newBlock){
 		let self = this;
 		self.getBlockHeight().then(function(height) {
-			// UTC timestamp
-			newBlock.time = new Date().getTime().toString().slice(0,-3);
-			// Block hash with SHA256 using newBlock and converting to a string
-			newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-			console.log("What is the height " + height);
+			newBlock.time = new Date().getTime().toString().slice(0,-3); // Give the block a timestamp
+			newBlock.hash = SHA256(JSON.stringify(newBlock)).toString(); // Add the block hash
+			newBlock.height = height;	// We got the height of the block from getBlockHeight promise
+			console.log("Block HEIGHT " + height);
 
-			// Need to make sure we get the genesis block first.
-			if (height === 0) {
-				// Block height
-				newBlock.height = height;
-				// Handle the genesis block
-				self.addSingleBlock(height, newBlock).then(function(height) {
-					console.log("Genesis Block " + height);
-					return self.getBlock(0).then(function(genesisBlock){
-						console.log(genesisBlock);
-					});
-				});
-			} else {
-				// Need to handle all other blocks
-				let previousHeight = height - 1;  // Getting the previous hash
-				newBlock.height = height; // Assign the block height
-				return self.getBlock(previousHeight).then(function(block) {
-					let blockObj = JSON.parse(block);						// Convert the block string into obj
-					newBlock.previousBlockHash = blockObj.hash; // assign the previous hash
-					// Block height
-					return self.addSingleBlock(height, newBlock).then(function(height) {
-						return self.getBlock(height).then(function(theBlock) {
-							console.log(theBlock);
-						});
-					});
-				}).catch((err) => {console.log('Unable to add block ' + err);});
+			// Need to make sure that blocks are linked in a chain
+			if (height > 0) {
+				let previousHeight = height - 1;
+				self.getBlock(previousHeight).then(function(previousBlock) {
+					newBlock.previousBlockHash = previousBlock.hash;
+				}).catch((err) => {console.log("Unable to get the previous block");});
 			}
+			// Lets add the block
+			return self.model.addLevelDBData(height, JSON.stringify(newBlock).toString())
+			.then(function(key, value) {
+				console.log("Block ID ADDED " + key);
+			});
 		});
     // Adding block object to chain
   	this.chain.push(newBlock);
   }
 
-	addSingleBlock(height, genesisBlock) {
-		let self = this;
-		let blockPromise = self.model.addLevelDBData(height, JSON.stringify(genesisBlock).toString());
-		//let blockPromise = self.model.addLevelDBData(height, genesisBlock);
-		return blockPromise;
-	}
-
 	// Get block height promise
   getBlockHeight() {
 		let self = this;
-		let heightPromise = self.model.getLevelDBCount();
-		return heightPromise;
+		return self.model.getLevelDBCount()
+		.then(function(blockHeight) {
+			return blockHeight;
+		});
   }
 
 	// get block
   getBlock(blockHeight) {
     // return object as a single string
 		let self = this;
-		let blockPromise = self.model.getLevelDBData(blockHeight);
-		return blockPromise;
-		// Make sure to parse into json
-    //return JSON.parse(JSON.stringify(this.chain[blockHeight]));
+		return self.model.getLevelDBData(blockHeight)
+		.then(function(blockData) {
+			let block = JSON.parse(blockData);
+			return block;
+		});
   }
 
     // validate block
@@ -145,5 +127,5 @@ bc.getBlockHeight().then(function(count) {
 	});
 });*/
 
-// bc = new Blockchain();
+bc = new Blockchain();
 // console.log(bc.getBlockHeight());
