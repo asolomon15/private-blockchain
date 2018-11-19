@@ -26,7 +26,7 @@ class Block{
 
 class Blockchain{
   constructor(){
-		this.model = new Model.Model();
+		this.chain = new Model.Model();
     this.addBlock(new Block("First block in the chain - Genesis block"));
 		// Would like the Genisis height and currentheight to be attributes here.
   }
@@ -42,7 +42,7 @@ class Blockchain{
 				return self.getBlock(previousHeight).then(function(previousBlock) {
 					newBlock.previousBlockHash = previousBlock.hash;
 					newBlock.hash = SHA256(JSON.stringify(newBlock)).toString(); // Add the block hash
-					return self.model.addLevelDBData(height, JSON.stringify(newBlock).toString()).then(function(key, value) {
+					return self.chain.addLevelDBData(height, JSON.stringify(newBlock).toString()).then(function(key, value) {
 						console.log("Block ID ADDED " + key);
 					});
 				}).catch((err) => {
@@ -51,7 +51,7 @@ class Blockchain{
 			} else {
 				// Genesis block
 				newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-				return self.model.addLevelDBData(height, JSON.stringify(newBlock).toString()).then(function(key, value) {
+				return self.chain.addLevelDBData(height, JSON.stringify(newBlock).toString()).then(function(key, value) {
 					console.log("Adding the Genesis block");
 				});
 			}
@@ -61,7 +61,7 @@ class Blockchain{
 	// Get block height promise
   getBlockHeight() {
 		let self = this;
-		return self.model.getLevelDBCount()
+		return self.chain.getLevelDBCount()
 		.then(function(blockHeight) {
 			return blockHeight;
 		});
@@ -71,7 +71,7 @@ class Blockchain{
   getBlock(blockHeight) {
     // return object as a single string
 		let self = this;
-		return self.model.getLevelDBData(blockHeight)
+		return self.chain.getLevelDBData(blockHeight)
 		.then(function(blockData) {
 			let block = JSON.parse(blockData);
 			return block;
