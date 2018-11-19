@@ -160,8 +160,8 @@ const bc = new Blockchain();
 			bc.addBlock(blockTest)
 			//.then((result) => {
 			//	console.log(result);
-        //i++;
+        i++;
 			//}).catch((err) => {console.log(err);});
-			if (--i) theLoop(i);
+			if (i < 100) theLoop(i);
 		}, 100);
-	})(100);
+	})(0);
