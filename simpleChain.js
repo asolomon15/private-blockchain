@@ -26,7 +26,6 @@ class Block{
 
 class Blockchain{
   constructor(){
-    this.chain = [];
 		this.model = new Model.Model();
     this.addBlock(new Block("First block in the chain - Genesis block"));
 		// Would like the Genisis height and currentheight to be attributes here.
@@ -57,8 +56,6 @@ class Blockchain{
 				});
 			}
 		});
-    // Adding block object to chain
-  	this.chain.push(newBlock);
   }
 
 	// Get block height promise
@@ -145,7 +142,7 @@ bc.getBlockHeight().then(function(count) {
 	});
 });*/
 
-bc = new Blockchain();
+//bc = new Blockchain();
 //bc.addBlock(new Block("second block"));
 //bc.addBlock(new Block("third block"));
 //bc.addBlock(new Block("forth block"));
@@ -154,3 +151,17 @@ bc = new Blockchain();
 });*/
 // console.log(bc.getBlockHeight());
 //  bc.validateChain();
+
+
+const bc = new Blockchain();
+(function theLoop (i) {
+    setTimeout(function () {
+			let blockTest = new Block("Test Block - " + (i + 1));
+			bc.addBlock(blockTest)
+			//.then((result) => {
+			//	console.log(result);
+        //i++;
+			//}).catch((err) => {console.log(err);});
+			if (--i) theLoop(i);
+		}, 100);
+	})(100);

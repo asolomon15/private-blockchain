@@ -100,20 +100,7 @@ class DBModel {
 /* ===== exporting these functions for the simplechain ========================|
 |*/
 module.exports.Model = DBModel;
-/*module.exports = {
-  addBlockData: function(key, value) {
-    addLevelDBData(key,value)
-  },
-  getBlockData: function(key) {
-    getLevelDBData(key)
-  },
-  addBlockDataByValue: function(value) {
-    addDataToLevelDB(value)
-  },
-  getBlockLength: function() {
-    getLevelDBCount()
-  }
-};*/
+
 
 /*const model = new DBModel();
 
