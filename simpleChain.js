@@ -35,24 +35,27 @@ class Blockchain{
   // Add new block
   addBlock(newBlock){
 		let self = this;
+		newBlock.time = new Date().getTime().toString().slice(0,-3); // Give the block a timestamp
 		self.getBlockHeight().then(function(height) {
-			newBlock.time = new Date().getTime().toString().slice(0,-3); // Give the block a timestamp
-			newBlock.hash = SHA256(JSON.stringify(newBlock)).toString(); // Add the block hash
-			newBlock.height = height;	// We got the height of the block from getBlockHeight promise
-			console.log("Block HEIGHT " + height);
-
-			// Need to make sure that blocks are linked in a chain
 			if (height > 0) {
+				newBlock.height = height;	// We got the height of the block from getBlockHeight promise
 				let previousHeight = height - 1;
-				self.getBlock(previousHeight).then(function(previousBlock) {
+				return self.getBlock(previousHeight).then(function(previousBlock) {
 					newBlock.previousBlockHash = previousBlock.hash;
-				}).catch((err) => {console.log("Unable to get the previous block");});
+					newBlock.hash = SHA256(JSON.stringify(newBlock)).toString(); // Add the block hash
+					return self.model.addLevelDBData(height, JSON.stringify(newBlock).toString()).then(function(key, value) {
+						console.log("Block ID ADDED " + key);
+					});
+				}).catch((err) => {
+					console.log("Unable to get the previous block");
+				});
+			} else {
+				// Genesis block
+				newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
+				return self.model.addLevelDBData(height, JSON.stringify(newBlock).toString()).then(function(key, value) {
+					console.log("Adding the Genesis block");
+				});
 			}
-			// Lets add the block
-			return self.model.addLevelDBData(height, JSON.stringify(newBlock).toString())
-			.then(function(key, value) {
-				console.log("Block ID ADDED " + key);
-			});
 		});
     // Adding block object to chain
   	this.chain.push(newBlock);
@@ -80,42 +83,57 @@ class Blockchain{
 
     // validate block
     validateBlock(blockHeight){
+			let self = this;
       // get block object
-      let block = this.getBlock(blockHeight);
-      // get block hash
-      let blockHash = block.hash;
-      // remove block hash to test block integrity
-      block.hash = '';
-      // generate block hash
-      let validBlockHash = SHA256(JSON.stringify(block)).toString();
-      // Compare
-      if (blockHash===validBlockHash) {
-          return true;
-        } else {
-          console.log('Block #'+blockHeight+' invalid hash:\n'+blockHash+'<>'+validBlockHash);
-          return false;
-        }
+			return self.getBlock(blockHeight).then(function(block) {
+				let blockHash = block.hash;
+				block.hash = '';
+				// generate block hash
+	      let validBlockHash = SHA256(JSON.stringify(block)).toString();
+				if (blockHash === validBlockHash) {
+					console.log('Block #'+blockHeight+' valid hash:\n'+blockHash+'<>'+validBlockHash)
+					return true;
+				} else {
+					console.log('Block #'+blockHeight+' invalid hash:\n'+blockHash+'<>'+validBlockHash);
+					return false;
+				}
+			}).catch((err) => {console.log("Block not found " + err);});
     }
 
    // Validate blockchain
-    validateChain(){
-      let errorLog = [];
-      for (var i = 0; i < this.chain.length-1; i++) {
-        // validate block
-        if (!this.validateBlock(i))errorLog.push(i);
-        // compare blocks hash link
-        let blockHash = this.chain[i].hash;
-        let previousHash = this.chain[i+1].previousBlockHash;
-        if (blockHash!==previousHash) {
-          errorLog.push(i);
-        }
-      }
-      if (errorLog.length>0) {
-        console.log('Block errors = ' + errorLog.length);
-        console.log('Blocks: '+errorLog);
-      } else {
-        console.log('No errors detected');
-      }
+    validateChain() {
+			let self = this;
+			let blocksOfPromises = [];
+			let errorLog = [];
+			// Not sure how to use Promises.all
+			// But we can still loop over the blocks
+			self.getBlockHeight().then(function(height) {
+				// Constructing an array of block promises
+				for (var i = 0; i < height-1; i++) {
+					blocksOfPromises.push(self.getBlock(i));
+				}
+				Promise.all(blocksOfPromises).then(function(blocks) {
+					blocks.forEach(function(block) {
+						self.validateBlock(block.height).then(function(isBlockValid) {
+							if (isBlockValid === true) {
+								console.log(block);
+								// Need to make sure we don't compare the tip height with a height that isn't there
+								if (block.height < blocks.length-1) {
+									if (block.hash !== blocks[block.height+1].previousBlockHash) {
+										errorLog.push(block.height);
+									}
+								}
+							}
+						}).catch((err) => {console.log("Unable to validate block " + err);});
+					}).catch((err) => {console.log("Unable to iterate over blocks " + err);});
+				}).catch((err) => {console.log("Unable to get the blocks from promises " + err);});
+			}).catch((err) => {console.log("Unable to get the block height " + err);});
+			if (errorLog.length>0) {
+				console.log('Block errors = ' + errorLog.length);
+				console.log('Blocks: #'+errorLog);
+			} else {
+				console.log('No errors detected');
+			}
     }
 }
 
@@ -128,4 +146,11 @@ bc.getBlockHeight().then(function(count) {
 });*/
 
 bc = new Blockchain();
+//bc.addBlock(new Block("second block"));
+//bc.addBlock(new Block("third block"));
+//bc.addBlock(new Block("forth block"));
+/*bc.validateBlock(1).then(function(trueOrFalse) {
+	console.log(trueOrFalse);
+});*/
 // console.log(bc.getBlockHeight());
+//  bc.validateChain();

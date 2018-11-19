@@ -16,7 +16,7 @@ class DBModel {
   addLevelDBData(key,value) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      self.db.put(key, value, function(err) {
+        self.db.put(key, value, function(err) {
         if (err) {
           console.log('Block ' + key + ' submission failed', err);
           reject(err);
