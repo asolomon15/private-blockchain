@@ -27,7 +27,7 @@ class Block{
 class Blockchain{
   constructor(){
 		this.chain = new Model.Model();
-    this.addBlock(new Block("First block in the chain - Genesis block"));
+		this.addBlock(new Block("First block in the chain - Genesis block"));
 		// Would like the Genisis height and currentheight to be attributes here.
   }
 
