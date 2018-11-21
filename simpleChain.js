@@ -27,10 +27,7 @@ class Block {
 class Blockchain {
 	constructor() {
 		this.chain = new Model.Model();
-		//this.addBlock(new Block("First block in the chain - Genesis block"));
 		this.addGenesisBlock(new Block("First block in the chain - Genesis block"));
-		// Would like the Genisis height and currentheight to be attributes here.
-		this.currentHeight = 0; // Get the currentHight
 	}
 
 	/* AddsGenesisBlock(newBlock) is used for initialization of the blockchain.
@@ -44,15 +41,16 @@ class Blockchain {
 			//console.log(genesisBlock);
 		} catch (err) {
 			console.log("Genesis Block doesn't exists ");
+			//console.log(err);
 			newBlock.time = await new Date().getTime().toString().slice(0, -3);
 			newBlock.hash = await SHA256(JSON.stringify(newBlock)).toString();
 			let genesisHeight = await this.chain.addLevelDBData(0, JSON.stringify(newBlock).toString());
 			console.log("Genesis block is now created ");
-			console.log(newBlock);
+			//console.log(newBlock);
 		}
 	}
 
-	// addBlock(newBlock)  adds a new block to the blockchain
+	// addBlock(newBlock) is used for adding a new block to the blockchain.
 	async addBlock(newBlock) {
 		newBlock.time = await new Date().getTime().toString().slice(0, -3); // Give the block a timestamp
 		let height = await this.getBlockHeight();
@@ -64,25 +62,24 @@ class Blockchain {
 			newBlock.hash = await SHA256(JSON.stringify(newBlock)).toString();
 			let key = await this.chain.addLevelDBData(height, JSON.stringify(newBlock).toString());
 			console.log("New block created at height: #" + key);
-			this.currentHeight += height;
 		} catch (err) {
 			console.log("Unable to add block to blockchain " + err);
 		}
 	}
 
-	// Get block height promise
+	// getBlockHeight() is used to get the actual height of the blockchain aka index
 	async getBlockHeight() {
 		let numberOfBlocks = await this.chain.getLevelDBCount();
 		return numberOfBlocks
 	}
 
-	// get block
+	// getBlock() is used for getting the actual the block at a particular height
 	async getBlock(blockHeight) {
 		let block = await this.chain.getLevelDBData(blockHeight);
 		return block;
 	}
 
-	// validate block
+	// validateBlock() is used to validate the hash of a specific block.
 	async validateBlock(blockHeight) {
 		// get block object
 		try {
@@ -102,7 +99,7 @@ class Blockchain {
 		}
 	}
 
-	// Validate blockchain
+	// validateChain() is used for validating the entire.
 	async validateChain() {
 		let blocksOfPromises = [];
 		let links = [];
@@ -111,7 +108,6 @@ class Blockchain {
 		// But we can still loop over the blocks
 		let height = await this.getBlockHeight()
 		for (let i = 0; i < height; i++) {
-			console.log("Height #" + i);
 			try {
 				let block = await this.getBlock(i);
 				blocksOfPromises.push(block);
@@ -122,13 +118,15 @@ class Blockchain {
 		try {
 			let chain = await Promise.all(blocksOfPromises);
 			for (let i = 0; i < height; i++) {
-				console.log(chain[i]);
 				let validBlock = await this.validateBlock(chain[i].height);
 				if (validBlock) {
-					console.log("This is a valid block");
+					console.log("Block at height #" + i + "is valid");
+					console.log(chain[i]);
 					if (chain[i].height < chain.length - 1) {
 						if (chain[i].hash !== chain[i + 1].previousBlockHash) {
 							errorLog.push(block.height);
+						} else {
+							console.log("Block at height #" + i + "link is valid");
 						}
 					}
 				}
@@ -156,6 +154,6 @@ const bc = new Blockchain();
 		//	console.log(result);
 		i++;
 		//}).catch((err) => {console.log(err);});
-		if (i < 100) theLoop(i);
+		if (i < 1600) theLoop(i);
 	}, 100);
 })(0);
