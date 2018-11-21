@@ -20,8 +20,9 @@ class DBModel {
 				if (err) {
 					console.log('Block ' + key + ' submission failed', err);
 					reject("Not Found");
+				} else {
+					resolve(key);
 				}
-				resolve(key);
 			});
 		});
 	}
@@ -34,9 +35,10 @@ class DBModel {
 			self.db.get(key, function (err, value) {
 				if (err) {
 					//console.log('Not found!', err);
-					reject(err)
+					reject(err);
+				} else {
+					resolve(JSON.parse(value));
 				}
-				resolve(JSON.parse(value))
 			});
 		});
 	}
