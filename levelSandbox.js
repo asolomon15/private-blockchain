@@ -19,9 +19,9 @@ class DBModel {
         self.db.put(key, value, function(err) {
         if (err) {
           console.log('Block ' + key + ' submission failed', err);
-          reject(err);
+          reject("Not Found");
         }
-        resolve(key, value);
+        resolve(key);
       });
     });
   }
@@ -33,10 +33,10 @@ class DBModel {
     return new Promise(function(resolve, reject) {
       self.db.get(key, function(err, value) {
         if (err) {
-          console.log('Not found!', err);
+          //console.log('Not found!', err);
           reject(err)
         }
-        resolve(value)
+        resolve(JSON.parse(value))
       });
     });
   }
@@ -76,7 +76,7 @@ class DBModel {
           count++
         })
         .on('error', function(err) {
-          reject('Unable to get the data', err)
+          reject(err)
         })
         .on('close', function() {
           resolve(count)
