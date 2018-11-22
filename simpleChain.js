@@ -102,10 +102,7 @@ class Blockchain {
 	// validateChain() is used for validating the entire.
 	async validateChain() {
 		let blocksOfPromises = [];
-		let links = [];
 		let errorLog = [];
-		// Not sure how to use Promises.all
-		// But we can still loop over the blocks
 		let height = await this.getBlockHeight()
 		for (let i = 0; i < height; i++) {
 			try {
