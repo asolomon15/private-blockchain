@@ -4,15 +4,13 @@
 
 const level = require('level');
 const chainDB = './chaindata';
-//const db = level(chainDB);
-
 
 class DBModel {
 	constructor() {
 		this.db = level(chainDB);
 	}
 
-	// Add data to levelDB with key/value pair
+	// addLevelDBData() is used for adding a block at a particuclar height or index
 	addLevelDBData(key, value) {
 		let self = this;
 		return new Promise(function (resolve, reject) {
@@ -27,8 +25,7 @@ class DBModel {
 		});
 	}
 
-
-	// Get data from levelDB with key
+	// GetLevelDBData() Gets the leveldb data from the database
 	getLevelDBData(key) {
 		let self = this;
 		return new Promise(function (resolve, reject) {
@@ -43,7 +40,7 @@ class DBModel {
 		});
 	}
 
-	// Add data to levelDB with value
+	// addDataToLevelDB() adds a block by the specific value.
 	addDataToLevelDB(value) {
 		let self = this;
 		let i = 0;
@@ -68,7 +65,7 @@ class DBModel {
 		});
 	}
 
-	// Get the count of all keys within the database
+	// getLevelDBCount() Gets the number of entries in the db aka the height.
 	getLevelDBCount() {
 		let self = this;
 		return new Promise(function (resolve, reject) {

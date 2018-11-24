@@ -30,23 +30,18 @@ class Blockchain {
 		this.addGenesisBlock(new Block("First block in the chain - Genesis block"));
 	}
 
-	/* AddsGenesisBlock(newBlock) is used for initialization of the blockchain.
-		It simply checks to see if a genesis block is persistantly stored. If there
-		is no genesis block, this method will create it.
+	/* AddsGenesisBlock(newBlock) is used for initializing the Genesis Block
 	*/
 	async addGenesisBlock(newBlock) {
 		try {
 			let genesisBlock = await this.getBlock(0); // Gets the block
-			console.log("Genesis Block already exists");
-			//console.log(genesisBlock);
+			console.log("Genesis Block already exists");;
 		} catch (err) {
 			console.log("Genesis Block doesn't exists ");
-			//console.log(err);
 			newBlock.time = await new Date().getTime().toString().slice(0, -3);
 			newBlock.hash = await SHA256(JSON.stringify(newBlock)).toString();
 			let genesisHeight = await this.chain.addLevelDBData(0, JSON.stringify(newBlock).toString());
 			console.log("Genesis block is now created ");
-			//console.log(newBlock);
 		}
 	}
 
@@ -81,7 +76,6 @@ class Blockchain {
 
 	// validateBlock() is used to validate the hash of a specific block.
 	async validateBlock(blockHeight) {
-		// get block object
 		try {
 			let block = await this.getBlock(blockHeight);
 			let blockHash = block.hash;
@@ -99,7 +93,7 @@ class Blockchain {
 		}
 	}
 
-	// validateChain() is used for validating the entire.
+	// validateChain() is used for validating the entire chain
 	async validateChain() {
 		let blocksOfPromises = [];
 		let errorLog = [];
