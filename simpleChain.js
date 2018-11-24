@@ -30,8 +30,7 @@ class Blockchain {
 		this.addGenesisBlock(new Block("First block in the chain - Genesis block"));
 	}
 
-	/* AddsGenesisBlock(newBlock) is used for initializing the Genesis Block
-	*/
+	// AddsGenesisBlock() is used for initializing the Genesis Block
 	async addGenesisBlock(newBlock) {
 		try {
 			let genesisBlock = await this.getBlock(0); // Gets the block
