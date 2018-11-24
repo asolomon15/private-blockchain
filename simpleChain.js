@@ -82,10 +82,10 @@ class Blockchain {
 			block.hash = '';
 			let validBlockHash = SHA256(JSON.stringify(block)).toString();
 			if (blockHash === validBlockHash) {
-				console.log('Block #' + blockHeight + ' valid hash:\n' + blockHash + '<>' + validBlockHash);
+				console.log('Block #' + blockHeight + ' valid hash:\n' + blockHash + ' <> ' + validBlockHash);
 				return true;
 			} else {
-				console.log('Block #' + blockHeight + ' invalid hash:\n' + blockHash + '<>' + validBlockHash);
+				console.log('Block #' + blockHeight + ' invalid hash:\n' + blockHash + ' <> ' + validBlockHash);
 				return false;
 			}
 		} catch (err) {
@@ -111,20 +111,24 @@ class Blockchain {
 			for (let i = 0; i < height; i++) {
 				let validBlock = await this.validateBlock(chain[i].height);
 				if (validBlock) {
-					console.log("Block at height #" + i + "is valid");
+					console.log("Block at height #" + i + " is valid");
 					console.log(chain[i]);
 					if (chain[i].height < chain.length - 1) {
 						if (chain[i].hash !== chain[i + 1].previousBlockHash) {
 							errorLog.push(block.height);
 						} else {
-							console.log("Block at height #" + i + "link is valid");
+							console.log("Block at height # " + i + " link is valid");
+							console.log('Block height #' + i + ' valid link hash:\n' + chain[i].hash + ' <> ' + chain[i + 1].previousBlockHash);
+							console.log(" ");
+							console.log(" ");
+							console.log(" ");
 						}
 					}
 				}
 			}
 			if (errorLog.length > 0) {
 				console.log('Block errors = ' + errorLog.length);
-				console.log('Blocks: #' + errorLog);
+				console.log('Blocks: # ' + errorLog);
 			} else {
 				console.log('No errors detected');
 			}
@@ -145,6 +149,6 @@ const bc = new Blockchain();
 		//	console.log(result);
 		i++;
 		//}).catch((err) => {console.log(err);});
-		if (i < 1600) theLoop(i);
+		if (i < 10) theLoop(i);
 	}, 100);
 })(0);
