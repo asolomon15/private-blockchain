@@ -3,22 +3,8 @@
 |  =========================================================*/
 
 const SHA256 = require('crypto-js/sha256');
+const BlockClass = require('./Block.js');
 const Model = require('./levelSandbox');
-
-
-/* ===== Block Class ==============================
-|  Class with a constructor for block 			   |
-|  ===============================================*/
-
-class Block {
-	constructor(data) {
-		this.hash = "",
-		this.height = 0,
-		this.body = data,
-		this.time = 0,
-		this.previousBlockHash = ""
-	}
-}
 
 /* ===== Blockchain Class ==========================
 |  Class with a constructor for new blockchain 		|
@@ -27,7 +13,7 @@ class Block {
 class Blockchain {
 	constructor() {
 		this.chain = new Model.Model();
-		this.addGenesisBlock(new Block("First block in the chain - Genesis block"));
+		this.addGenesisBlock(new BlockClass.Block("First block in the chain - Genesis block"));
 	}
 
 	// AddsGenesisBlock() is used for initializing the Genesis Block
@@ -142,7 +128,7 @@ class Blockchain {
 const bc = new Blockchain();
 (function theLoop(i) {
 	setTimeout(function () {
-		let blockTest = new Block("Test Block - " + (i + 1));
+		let blockTest = new BlockClass.Block("Test Block - " + (i + 1));
 		bc.addBlock(blockTest)
 		//.then((result) => {
 		//	console.log(result);
