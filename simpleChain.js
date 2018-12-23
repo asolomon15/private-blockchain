@@ -42,8 +42,9 @@ class Blockchain {
 			newBlock.hash = await SHA256(JSON.stringify(newBlock)).toString();
 			let key = await this.chain.addLevelDBData(height, JSON.stringify(newBlock).toString());
 			console.log("New block created at height: #" + key);
+			return newBlock;
 		} catch (err) {
-			console.log("Unable to add block to blockchain " + err);
+			return console.log("Unable to add block to blockchain " + err);
 		}
 	}
 
@@ -121,9 +122,24 @@ class Blockchain {
 			console.log(err);
 		}
 	}
+
+	async getChain() {
+		let chain = [];
+		let height = await this.getBlockHeight();
+		for (let i = 0; i < height; i++ ) {
+			try {
+				let block = await this.getBlock(i);
+				chain.push(block);
+			} catch (err) {
+				console.log(err);
+			}
+		}
+		return chain;
+	}
 }
 
-
+/* Need to comment this out so we don't get the error below
+(node:8390) UnhandledPromiseRejectionWarning: OpenError: IO error: lock ./chaindata/LOCK: already held by process
 // Test data
 const bc = new Blockchain();
 (function theLoop(i) {
@@ -136,4 +152,7 @@ const bc = new Blockchain();
 		//}).catch((err) => {console.log(err);});
 		if (i < 10) theLoop(i);
 	}, 100);
-})(0);
+})(0);*/
+
+
+module.exports.Blockchain = Blockchain;
