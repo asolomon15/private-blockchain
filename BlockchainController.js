@@ -37,8 +37,13 @@ class BlockchainController {
       path: '/block',
       handler: (request, h) => {
         try {
-          let newBlock = new Block.Block(request.payload.data);
-          return this.blockchain.addBlock(newBlock);
+          if(request.payload.data !== ''){
+            console.log(request);
+            let newBlock = new Block.Block(request.payload.data);
+            return this.blockchain.addBlock(newBlock);
+          } else {
+            return "New block contains no data";
+          }
         } catch (err) {
           return err;
         }
