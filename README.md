@@ -3,7 +3,7 @@
 Blockchain has the potential to change the way that the world approaches data. Develop Blockchain skills by understanding the data model behind Blockchain by developing your own simplified private blockchain.   We also have a basic rest api which provides access to the private blockchain.
 
 ## Motivation
-The main goal of this project is to get an understanding of how blockchains work.  From creating a basic block to chaining several blocks together. This has also been a learning experience javascript programming language.  As my current knowledge grows, so will this code base.
+The main goal of this project is to get an understanding of how create a simple blockchain.  From creating a basic block to chaining several blocks together. This has also been a learning experience javascript programming language.  As my current knowledge grows, so will this code base.
 
 ## Getting Started
 
