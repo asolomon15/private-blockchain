@@ -2,6 +2,7 @@ const SHA256 = require('crypto-js/sha256');
 const Chain  = require('./simpleChain.js');
 const Block  = require('./Block.js');
 
+const Boom = require('boom');
 
 class BlockchainController {
 
@@ -24,17 +25,25 @@ class BlockchainController {
    -H 'Content-Type: application/json'
    */
   getBlockByIndex() {
-    try {
-      this.server.route({
-        method: 'GET',
-        path: '/block/{index}',
-        handler: (request, h) => {
-          return this.blockchain.getBlock(request.params.index);
+    this.server.route({
+      method: 'GET',
+      path: '/block/{index}',
+      handler: async (request, h) => {
+        try {
+          let block = await this.blockchain.getBlock(request.params.index);
+          //console.log(block);
+          return block;
+        } catch (err) {
+          // Boom is a nice way to return http status codes as well as additional information.
+          /* The boom return code is similar this json response below.
+          return h.response.status(404).json({
+            type: err.type || 'error',
+            message: err.message
+          });*/
+          return Boom.notFound("Block #" + request.params.index + " Not Found");
         }
-      });
-    }catch (err) {
-      return "Unable to find block";
-    }
+      }
+    });
   }
 
   /*
@@ -55,14 +64,17 @@ class BlockchainController {
       handler: (request, h) => {
         try {
           if(request.payload.data !== ''){
-            console.log(request);
+            //console.log(request);
             let newBlock = new Block.Block(request.payload.data);
             return this.blockchain.addBlock(newBlock);
           } else {
             return "New block contains no data";
           }
         } catch (err) {
-          return err;
+          // Need to return a 403 forbidden
+          // Since this is a simple block chain i can't see a reason why we can't create a new block but
+          // for API consistancey we need to have a return value.
+          return Boom.forbidden("Unable to create new a new block");
         }
       }
     });
@@ -79,7 +91,7 @@ class BlockchainController {
       method: 'GET',
       path: '/block/all',
       handler: (request, h) => {
-        return this.blockchain.getChain();
+        return this.blockchain.getChain();  // Might need to return something here just to handle errors
       }
     });
   }
