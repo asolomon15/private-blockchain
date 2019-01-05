@@ -30,7 +30,7 @@ class BlockchainController {
       path: '/block/{index}',
       handler: async (request, h) => {
         try {
-          let block = await this.blockchain.getBlock(request.params.index);
+          const block = await this.blockchain.getBlock(request.params.index);
           //console.log(block);
           return block;
         } catch (err) {
