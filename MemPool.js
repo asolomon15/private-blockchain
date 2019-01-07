@@ -18,29 +18,31 @@ class RequestMemPool {
   }
 
   // addEntry(memPoolEntry) is used for adding a MemPoolEntry
-  addEntry(memPoolEntry) {
-    this.memPoolEntries[memPoolEntry.walletAddress] = memPoolEntry;
-    this.timeoutRequests[memPoolEntry.walletAddress] = memPoolEntry.setTimeout();
+  async addRequestValidation(walletAddress) {
+    let memPoolEntry = await new RequestMemPoolEntry(walletAddress);
+    this.memPoolEntries[memPoolEntry.walletAddress] = await memPoolEntry;
+    this.timeoutRequests[memPoolEntry.walletAddress] = await memPoolEntry.setTimeout();
+    return memPoolEntry;
   }
 
   // checkTimeoutRequests() Checks to see if the mempool entry gets removed based off of 300 seconds
-  checkTimeoutRequests() {
+  async checkTimeoutRequests() {
     for(let walletAddress in this.memPoolEntries) {
-      this.memPoolEntries[walletAddress].setTimeout(); // Lets run the time out again
+      await this.memPoolEntries[walletAddress].setTimeout(); // Lets run the time out again
       if (this.memPoolEntries[walletAddress].validationWindow <= 0 || this.memPoolEntries.length != 0) {
-        console.log(this.memPoolEntries[walletAddress]);
-        delete this.memPoolEntries[walletAddress];
-        delete this.timeoutRequests[memPoolEntry.walletAddress];
+        await console.log(this.memPoolEntries[walletAddress]);
+        await delete this.memPoolEntries[walletAddress];
+        await delete this.timeoutRequests[memPoolEntry.walletAddress];
       }
     }
   }
 
   // getRequestPoolEntries() is used for getting the full list of request entries
-  getRequestPoolEntries() {
-    let requestEntries = [];
+  async getRequestPoolEntries() {
+    let requestEntries = await [];
     for(let walletAddress in this.memPoolEntries) {
-      this.checkTimeoutRequests();
-      requestEntries.push(this.memPoolEntries[walletAddress]);
+      await this.checkTimeoutRequests();
+      await requestEntries.push(this.memPoolEntries[walletAddress]);
     }
     return requestEntries;
   }
@@ -67,11 +69,11 @@ class RequestMemPoolEntry {
   }
 
   // setTimeout() is used for setting the time
-  setTimeout() {
+  async setTimeout() {
     const TimeoutRequestsWindowTime = 5*60*1000;
-    let timeElapse = (new Date().getTime().toString().slice(0,-3)) - this.requestTimeStamp;
-    let timeLeft = (TimeoutRequestsWindowTime/1000) - timeElapse;
-    this.validationWindow = timeLeft;
+    let timeElapse = await (new Date().getTime().toString().slice(0,-3)) - this.requestTimeStamp;
+    let timeLeft = await (TimeoutRequestsWindowTime/1000) - timeElapse;
+    this.validationWindow = await timeLeft;
   }
 }
 
@@ -79,4 +81,3 @@ class RequestMemPoolEntry {
 // Modules to be exported.
 module.exports.RequestMemPool = RequestMemPool;
 module.exports.RequestMemPoolEntry = RequestMemPoolEntry;
-//module.exports.RequestMemPool = RequestMemPool;

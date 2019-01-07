@@ -11,7 +11,7 @@ class MemPoolController {
   constructor(server) {
     this.server = server;
     this.mempool = new MemPool.RequestMemPool();
-    this.addRequestValidation();
+    this.requestValidation();
     this.getAllValdaitionRequests();
   }
 
@@ -24,16 +24,15 @@ class MemPoolController {
     "address":"19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL"
   }'
   */
-  addRequestValidation() {
+  requestValidation() {
     this.server.route({
       method: 'POST',
       path: '/requestValidation',
       handler: async (request, h) => {
         if(request.payload.address !== '') {
           // Need to make sure that this is a valid addresses
-          if(request.payload.address.length == 34) {
-            let memPoolEntry = new MemPool.RequestMemPoolEntry(request.payload.address);
-            this.mempool.addEntry(memPoolEntry);
+          if(request.payload.address.length === 34 || request.payload.address.length === 33) {
+            let memPoolEntry = this.mempool.addRequestValidation(request.payload.address);
             this.mempool.checkTimeoutRequests();
             return memPoolEntry;
           } else {
@@ -51,7 +50,7 @@ class MemPoolController {
       handler: async (request, h) => {
         //return this.mempool.getRequestPoolEntries();
         console.log(this.mempool.getRequestPoolEntries());
-        return this.mempool.getRequestPoolEntries();
+        return await this.mempool.getRequestPoolEntries();
       }
     });
   }
