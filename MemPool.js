@@ -3,6 +3,7 @@
 
 // Constents
 const TimeoutRequestsWindowTime = 5*60*1000;
+const bitcoinMessage = require('bitcoinjs-message');
 
 
 /*
@@ -15,6 +16,7 @@ class RequestMemPool {
   constructor() {
     this.memPoolEntries = [];
     this.timeoutRequests = [];
+    this.validMemPoolEntries = [];
   }
 
   // addEntry(memPoolEntry) is used for adding a MemPoolEntry
@@ -47,17 +49,32 @@ class RequestMemPool {
     return requestEntries;
   }
 
-  validateRequestByWallet() {
-
+  async validateRequestByWallet(walletAddress, signature) {
+    // Need to look up the wallet address.
+    const requestEntry = await this.memPoolEntries[walletAddress];
+    if(requestEntry) {
+      // Verify TimeoutRequestsWindowTime
+      requestEntry.setTimeout();
+      if (requestEntry.validationWindow >= 0) {
+        let validEntry = await new ValidMemPoolEntry(requestEntry.walletAddress);
+        validEntry.requestTimeStamp = await requestEntry.requestTimeStamp;
+        validEntry.message = await requestEntry.message;
+        validEntry.validationWindow = await requestEntry.validationWindow;
+        let isValid = await bitcoinMessage.verify(validEntry.message, validEntry.walletAddress, signature);
+        validEntry.messageSignature = await isValid;
+        await delete this.memPoolEntries[validEntry.walletAddress];
+        await delete this.timeoutRequests[validEntry.walletAddress];
+        this.validMemPoolEntries[validEntry.walletAddress] = validEntry;
+        return validEntry;
+      }
+    } else {
+      return this.validMemPoolEntries[walletAddress];
+    }
   }
 }
 
 /*
-  RequestMemPoolEntry
-    walletAddress
-    requestTimeStamp
-    message
-    validationWindow
+  RequestMemPoolEntry is used for storing the requested entries.
 */
 class RequestMemPoolEntry {
 
@@ -74,6 +91,17 @@ class RequestMemPoolEntry {
     let timeElapse = await (new Date().getTime().toString().slice(0,-3)) - this.requestTimeStamp;
     let timeLeft = await (TimeoutRequestsWindowTime/1000) - timeElapse;
     this.validationWindow = await timeLeft;
+  }
+}
+
+class ValidMemPoolEntry {
+  constructor(walletAddress) {
+    this.registerStar = true;
+    this.walletAddress = walletAddress;
+    this.requestTimeStamp;
+    this.message;
+    this.validationWindow;
+    this.messageSignature;
   }
 }
 

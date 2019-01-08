@@ -13,6 +13,7 @@ class MemPoolController {
     this.mempool = new MemPool.RequestMemPool();
     this.requestValidation();
     this.getAllValdaitionRequests();
+    this.validate();
   }
 
   /* addRequestValidation() send Request to validate
@@ -55,7 +56,7 @@ class MemPoolController {
     });
   }
 
-  /*  addRequestValidation()
+  /*  validate()
       curl -X POST \
       http://localhost:8000/message-signature/validate \
       -H 'Content-Type: application/json' \
@@ -65,15 +66,23 @@ class MemPoolController {
             "signature":"H8K4+1MvyJo9tcr2YN2KejwvX1oqneyCH+fsUL1z1WBdWmswB9bijeFfOfMqK68kQ5RO6ZxhomoXQG3fkLaBl+Q="
           }'
   */
-    validateRequestByWallet() {
-      //request.payload.address
-      //request.payload.signature
-
-    }
-
-
-
-
+  validate() {
+    this.server.route({
+      method: 'POST',
+      path: '/message-signature/validate',
+      handler: async (request, h) => {
+        // Need to make sure that this is a valid addresses
+        if(request.payload.address.length === 34 || request.payload.address.length === 33) {
+          this.mempool.checkTimeoutRequests();
+          let validMemPoolRequest = await this.mempool.validateRequestByWallet(request.payload.address, request.payload.signature);
+          return validMemPoolRequest;
+          //return "Hello World";
+        } else {
+          return Boom.badRequest("Address " + request.payload.address + " is not valid or signature is incorrect");
+        }
+      }
+    });
+  }
 }
 
 
