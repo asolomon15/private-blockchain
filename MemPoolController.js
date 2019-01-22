@@ -44,6 +44,12 @@ class MemPoolController {
     });
   }
 
+  /*  validate()
+      curl -X GET \
+      http://localhost:8000/requests \
+      -H 'Content-Type: application/json' \
+      -H 'cache-control: no-cache'
+  */
   getAllValdaitionRequests() {
     this.server.route({
       method: 'GET',
@@ -76,10 +82,38 @@ class MemPoolController {
           this.mempool.checkTimeoutRequests();
           let validMemPoolRequest = await this.mempool.validateRequestByWallet(request.payload.address, request.payload.signature);
           return validMemPoolRequest;
-          //return "Hello World";
         } else {
           return Boom.badRequest("Address " + request.payload.address + " is not valid or signature is incorrect");
         }
+      }
+    });
+  }
+
+  /*  addBlock()
+      curl -X POST \
+      http://localhost:8000/block \
+      -H 'Content-Type: application/json' \
+      -H 'cache-control: no-cache' \
+      -d '{
+            "address":"19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL"
+          }'
+  */
+  addBlock() {
+    this.server.route({
+      method: 'POST',
+      path: '/block',
+      handler: async (request, h) => {
+        let body = {
+          address: request.payload.address,
+          star: {
+            ra: RA,
+            dec: DEC,
+            mag: MAG,
+            cen: CEN,
+            story: Buffer(starStory).toString('hex')
+          }
+        };
+        let block = new Block.Block(body);
       }
     });
   }

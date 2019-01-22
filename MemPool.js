@@ -56,6 +56,21 @@ class RequestMemPool {
       // Verify TimeoutRequestsWindowTime
       requestEntry.setTimeout();
       if (requestEntry.validationWindow >= 0) {
+        let isValid = await bitcoinMessage.verify(requestEntry.message, requestEntry.walletAddress, signature);
+        let validEntry = {
+          "registerStar": true,
+          "status": {
+            "address": requestEntry.walletAddress,
+            "requestTimeStamp": requestEntry.requestTimeStamp,
+            "message": requestEntry.message,
+            "validationWindow": requestEntry.validationWindow,
+            "messageSignature": isValid
+          }
+        };
+        await delete this.memPoolEntries[validEntry.address];
+        await delete this.timeoutRequests[validEntry.address];
+        this.validMemPoolEntries[validEntry.address] = validEntry;
+        /*
         let validEntry = await new ValidMemPoolEntry(requestEntry.walletAddress);
         validEntry.requestTimeStamp = await requestEntry.requestTimeStamp;
         validEntry.message = await requestEntry.message;
@@ -64,11 +79,20 @@ class RequestMemPool {
         validEntry.messageSignature = await isValid;
         await delete this.memPoolEntries[validEntry.walletAddress];
         await delete this.timeoutRequests[validEntry.walletAddress];
-        this.validMemPoolEntries[validEntry.walletAddress] = validEntry;
+        this.validMemPoolEntries[validEntry.walletAddress] = validEntry;*/
         return validEntry;
       }
     } else {
       return this.validMemPoolEntries[walletAddress];
+    }
+  }
+
+  async verifyAddressRequest(walletAddress) {
+    const validEntry = await this.validMemPoolEntries[walletAddress];
+    if (validEntry) {
+      return true;
+    } else {
+      return false;
     }
   }
 }
