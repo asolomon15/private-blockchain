@@ -14,6 +14,7 @@ class MemPoolController {
     this.requestValidation();
     this.getAllValdaitionRequests();
     this.validate();
+    this.addBlock()
   }
 
   /* addRequestValidation() send Request to validate
@@ -56,21 +57,21 @@ class MemPoolController {
       path: '/requests',
       handler: async (request, h) => {
         //return this.mempool.getRequestPoolEntries();
-        console.log(this.mempool.getRequestPoolEntries());
+        //console.log(this.mempool.getRequestPoolEntries());
         return await this.mempool.getRequestPoolEntries();
       }
     });
   }
 
-  /*  validate()
-      curl -X POST \
-      http://localhost:8000/message-signature/validate \
-      -H 'Content-Type: application/json' \
-      -H 'cache-control: no-cache' \
-      -d '{
-            "address":"19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL",
-            "signature":"H8K4+1MvyJo9tcr2YN2KejwvX1oqneyCH+fsUL1z1WBdWmswB9bijeFfOfMqK68kQ5RO6ZxhomoXQG3fkLaBl+Q="
-          }'
+  /*
+  curl -X POST \
+    http://localhost:8000/message-signature/validate \
+    -H 'Content-Type: application/json' \
+    -H 'cache-control: no-cache' \
+    -d '{
+          "address":"19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL",
+          "signature":"H8K4+1MvyJo9tcr2YN2KejwvX1oqneyCH+fsUL1z1WBdWmswB9bijeFfOfMqK68kQ5RO6ZxhomoXQG3fkLaBl+Q="
+        }'
   */
   validate() {
     this.server.route({
@@ -80,11 +81,10 @@ class MemPoolController {
         // Need to make sure that this is a valid addresses
         if(request.payload.address.length === 34 || request.payload.address.length === 33) {
           this.mempool.checkTimeoutRequests();
-          let validMemPoolRequest = await this.mempool.validateRequestByWallet(request.payload.address, request.payload.signature);
+          const validMemPoolRequest = await this.mempool.validateRequestByWallet(request.payload.address, request.payload.signature);
           return validMemPoolRequest;
-        } else {
-          return Boom.badRequest("Address " + request.payload.address + " is not valid or signature is incorrect");
         }
+        return Boom.badRequest("Address " + request.payload.address + " is not valid or signature is incorrect");
       }
     });
   }
@@ -101,19 +101,25 @@ class MemPoolController {
   addBlock() {
     this.server.route({
       method: 'POST',
-      path: '/block',
+      path: '/addblock',
       handler: async (request, h) => {
-        let body = {
+        const address = request.payload.address;
+        const ra = request.payload.ra;
+        const dec = request.payload.dec;
+        const starStory = request.payload.starStory;
+        const buf = Buffer.alloc(32, starStory)
+        const body = {
           address: request.payload.address,
           star: {
-            ra: RA,
-            dec: DEC,
-            mag: MAG,
-            cen: CEN,
-            story: Buffer(starStory).toString('hex')
+            ra: ra,
+            dec: dec,
+            //mag: MAG,
+            //cen: CEN,
+            story: buf.toString().hexEncode()
           }
         };
-        let block = new Block.Block(body);
+        return body;
+        //let block = new Block.Block(body);
       }
     });
   }
