@@ -26,6 +26,7 @@ class Blockchain {
 			newBlock.time = await new Date().getTime().toString().slice(0, -3);
 			newBlock.hash = await SHA256(JSON.stringify(newBlock)).toString();
 			let genesisHeight = await this.chain.addLevelDBData(0, JSON.stringify(newBlock).toString());
+			newBlock.body["star"]["storyDecoded"] = newBlock.storyDecode(); // Decoding the story but not saving.
 			console.log("Genesis block is now created ");
 		}
 	}
@@ -41,6 +42,7 @@ class Blockchain {
 			newBlock.previousBlockHash = previousBlock.hash;
 			newBlock.hash = await SHA256(JSON.stringify(newBlock)).toString();
 			let key = await this.chain.addLevelDBData(height, JSON.stringify(newBlock).toString());
+			newBlock.body["star"]["storyDecoded"] = newBlock.storyDecode(); // Decoding the story but not saving.
 			console.log("New block created at height: #" + key);
 			return newBlock;
 		} catch (err) {
@@ -59,6 +61,11 @@ class Blockchain {
 		let block = await this.chain.getLevelDBData(blockHeight);
 		return block;
 	}
+
+	/*async getBlock(hash) {
+		let block = await this.chain.getBlockByHash(hash);
+		return block
+	}*/
 
 	// validateBlock() is used to validate the hash of a specific block.
 	async validateBlock(blockHeight) {

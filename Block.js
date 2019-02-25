@@ -2,6 +2,9 @@
 |  Class with a constructor for block 			   |
 |  ===============================================*/
 
+
+const hex2ascii = require('hex2ascii');
+
 class Block {
 	constructor(data) {
 		this.hash = "",
@@ -9,6 +12,10 @@ class Block {
 		this.body = data,
 		this.time = 0,
 		this.previousBlockHash = ""
+	}
+
+	storyDecode() {
+		return hex2ascii(this.body["star"]["story"])
 	}
 }
 
