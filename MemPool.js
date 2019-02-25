@@ -84,6 +84,7 @@ class RequestMemPool {
     return validEntry;
   }
 
+  // verifyAddressRequest(walletAddress) checks the validMemPoolEntries to see if is a valid entry.
   async verifyAddressRequest(walletAddress) {
     if (Object.keys(this.validMemPoolEntries) != 0) {
       const validEntry = await this.validMemPoolEntries[walletAddress];
