@@ -20,6 +20,7 @@ class StarRegistryController {
     this.postNewBlock();
     this.getBlockChain();
     this.getBlockByHash();
+    this.getBlockByWalletAddress();
 
     /* MemPool Specific Methods */
     this.mempool = new MemPool.RequestMemPool();
@@ -68,12 +69,34 @@ class StarRegistryController {
         try {
           const block = await this.blockchain.getBlockByHash(request.params.hash);
           console.log(block);
+          if (block === null) {
+            return Boom.notFound("Hash #" + request.params.hash + " Not Found");
+          }
           return block;
         } catch (err) {
           return Boom.notFound("Hash #" + request.params.hash + " Not Found");
         }
       }
     });
+  }
+
+  getBlockByWalletAddress() {
+    this.server.route({
+      method: 'GET',
+      path: '/star/address:{address}',
+      handler: async (request, h) => {
+        try {
+          const blocks = await this.blockchain.getBlockByWalletAddress(request.params.address);
+          console.log(blocks)
+          if (blocks.length === 0) {
+            return Boom.notFound("Wallet #"+ request.params.address + " NotFound");
+          }
+          return blocks;
+        } catch (err) {
+          return Boom.notFound("Wallet #"+ request.params.address + " NotFound");
+        }
+      }
+    })
   }
 
   /*

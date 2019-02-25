@@ -104,6 +104,28 @@ class DBModel {
 			});
 		});
 	}
+
+
+	// Gets a list of blocks that one specific wallet address is associated with.
+	getBlockByWalletAddress(address) {
+		let self = this;
+		let blocks = [];
+		return new Promise(function(resolve, reject) {
+			self.db.createReadStream()
+			.on('data', function (data) {
+				let dataEntry = JSON.parse(data["value"]);
+				if (dataEntry.body.address === address) {
+					blocks.push(dataEntry);
+				}
+			})
+			.on('error', function(err) {
+				reject(err);
+			})
+			.on('close', function() {
+				resolve(blocks);
+			});
+		});
+	}
 }
 
 

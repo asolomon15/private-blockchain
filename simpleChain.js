@@ -10,10 +10,20 @@ const Model = require('./levelSandbox');
 |  Class with a constructor for new blockchain 		|
 |  ================================================*/
 
+
+/* Genesis block data. Used data from the sun */
+GENESIS_STAR = {
+	star: {
+		ra: "22h 31m 14s",
+		dec: "-9° 17' 55.59",
+		story: "Genesis block starts with the solar system's star. THE SUN"
+	}
+};
+
 class Blockchain {
 	constructor() {
 		this.chain = new Model.Model();
-		this.addGenesisBlock(new BlockClass.Block("First block in the chain - Genesis block"));
+		this.addGenesisBlock(new BlockClass.Block(GENESIS_STAR));
 	}
 
 	// AddsGenesisBlock() is used for initializing the Genesis Block
@@ -61,10 +71,15 @@ class Blockchain {
 		let block = await this.chain.getLevelDBData(blockHeight);
 		return block;
 	}
-
+	
 	async getBlockByHash(hash) {
 		let block = await this.chain.getBlockByHash(hash);
-		return block
+		return block;
+	}
+
+	async getBlockByWalletAddress(address) {
+		let blocks = await this.chain.getBlockByWalletAddress(address);
+		return blocks;
 	}
 
 	// validateBlock() is used to validate the hash of a specific block.
