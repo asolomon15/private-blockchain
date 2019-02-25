@@ -23,8 +23,9 @@ class BlockchainAPI {
   * Initialization of the controllers
   */
   initControllers() {
-    require("./BlockchainController.js")(this.server);
-    require("./MemPoolController.js")(this.server);
+    //require("./BlockchainController.js")(this.server);
+    //require("./MemPoolController.js")(this.server);
+    require("./StarRegistryController.js")(this.server);
   }
 
   async start() {

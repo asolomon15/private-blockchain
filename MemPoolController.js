@@ -1,5 +1,7 @@
 const SHA256 = require('crypto-js/sha256');
 const Boom = require('boom');
+
+
 const Chain  = require('./simpleChain.js');
 const Block  = require('./Block.js');
 const MemPool = require('./MemPool.js');
@@ -14,7 +16,7 @@ class MemPoolController {
     this.requestValidation();
     this.getAllValdaitionRequests();
     this.validate();
-    this.addBlock()
+    this.addBlock();
   }
 
   /* addRequestValidation() send Request to validate
@@ -82,12 +84,14 @@ class MemPoolController {
         if(request.payload.address.length === 34 || request.payload.address.length === 33) {
           this.mempool.checkTimeoutRequests();
           const validMemPoolRequest = await this.mempool.validateRequestByWallet(request.payload.address, request.payload.signature);
+          // need to lookup and verify that
           return validMemPoolRequest;
         }
         return Boom.badRequest("Address " + request.payload.address + " is not valid or signature is incorrect");
       }
     });
   }
+
 
   /*  addBlock()
       curl -X POST \
@@ -103,23 +107,29 @@ class MemPoolController {
       method: 'POST',
       path: '/addblock',
       handler: async (request, h) => {
-        const address = request.payload.address;
+        const address = await request.payload.address;
+        console.log(address);
+        if(!this.mempool.verifyAddressRequest(address)) {
+          return Boom.notFound("Address: " + address + "not found.");
+        }
         const ra = request.payload.ra;
         const dec = request.payload.dec;
-        const starStory = request.payload.starStory;
-        const buf = Buffer.alloc(32, starStory)
+        const starStory = request.payload.story;
+        const buf = Buffer.alloc(starStory.length, starStory).toString('hex');
         const body = {
-          address: request.payload.address,
+          address: address,
           star: {
             ra: ra,
             dec: dec,
             //mag: MAG,
             //cen: CEN,
-            story: buf.toString().hexEncode()
+            story: buf
           }
         };
-        return body;
-        //let block = new Block.Block(body);
+        //return body;
+        let block = new Block.Block(body);
+        console.log(block);
+        return block;
       }
     });
   }

@@ -1,8 +1,10 @@
-const SHA256 = require('crypto-js/sha256');
+  const SHA256 = require('crypto-js/sha256');
+const Boom = require('boom');
+const hex2ascii = require('hex2ascii')
+
 const Chain  = require('./simpleChain.js');
 const Block  = require('./Block.js');
 
-const Boom = require('boom');
 
 class BlockchainController {
 
@@ -79,6 +81,7 @@ class BlockchainController {
       }
     });
   }
+
 
   /* getBlockChain() is used to pull the entire chain and display
   curl -X GET \
