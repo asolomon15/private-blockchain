@@ -59,7 +59,7 @@ class RequestMemPool {
   async validateRequestByWallet(walletAddress, signature) {
     // Need to look up the wallet address.
     let validEntry = {};
-    if (Object.keys(this.memPoolEntries) != 0) {
+    if (Object.keys(this.memPoolEntries).length != 0) {
       const requestEntry = await this.memPoolEntries[walletAddress];
       if (requestEntry.validationWindow >= 0) {
         let isValid = await bitcoinMessage.verify(requestEntry.message, requestEntry.walletAddress, signature);
@@ -74,7 +74,7 @@ class RequestMemPool {
               "messageSignature": isValid
             }
           };
-    }
+        }
         await delete this.memPoolEntries[validEntry.address];
         await delete this.timeoutRequests[validEntry.address];
         this.validMemPoolEntries[validEntry.address] = validEntry;
@@ -85,11 +85,13 @@ class RequestMemPool {
   }
 
   async verifyAddressRequest(walletAddress) {
-    const validEntry = await this.validMemPoolEntries[walletAddress];
-    if (validEntry) {
-      return True;
-    } else {
-      return False;
+    if (Object.keys(this.validMemPoolEntries) != 0) {
+      const validEntry = await this.validMemPoolEntries[walletAddress];
+
+      if (validEntry) {
+        return true;
+      }
+      return false;
     }
   }
 }
