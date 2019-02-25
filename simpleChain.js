@@ -19,7 +19,7 @@ class Blockchain {
 	// AddsGenesisBlock() is used for initializing the Genesis Block
 	async addGenesisBlock(newBlock) {
 		try {
-			let genesisBlock = await this.getBlock(0); // Gets the block
+			let genesisBlock = await this.getBlockByHeight(0); // Gets the block
 			console.log("Genesis Block already exists");;
 		} catch (err) {
 			console.log("Genesis Block doesn't exists ");
@@ -38,7 +38,7 @@ class Blockchain {
 		newBlock.height = height;
 		let previousHeight = height - 1;
 		try {
-			let previousBlock = await this.getBlock(previousHeight);
+			let previousBlock = await this.getBlockByHeight(previousHeight);
 			newBlock.previousBlockHash = previousBlock.hash;
 			newBlock.hash = await SHA256(JSON.stringify(newBlock)).toString();
 			let key = await this.chain.addLevelDBData(height, JSON.stringify(newBlock).toString());
@@ -56,21 +56,21 @@ class Blockchain {
 		return numberOfBlocks
 	}
 
-	// getBlock() is used for getting the actual the block at a particular height
-	async getBlock(blockHeight) {
+	// getBlockByHeight() is used for getting the actual the block at a particular height
+	async getBlockByHeight(blockHeight) {
 		let block = await this.chain.getLevelDBData(blockHeight);
 		return block;
 	}
 
-	/*async getBlock(hash) {
+	async getBlockByHash(hash) {
 		let block = await this.chain.getBlockByHash(hash);
 		return block
-	}*/
+	}
 
 	// validateBlock() is used to validate the hash of a specific block.
 	async validateBlock(blockHeight) {
 		try {
-			let block = await this.getBlock(blockHeight);
+			let block = await this.getBlockByHeight(blockHeight);
 			let blockHash = block.hash;
 			block.hash = '';
 			let validBlockHash = SHA256(JSON.stringify(block)).toString();
@@ -93,7 +93,7 @@ class Blockchain {
 		let height = await this.getBlockHeight()
 		for (let i = 0; i < height; i++) {
 			try {
-				let block = await this.getBlock(i);
+				let block = await this.getBlockByHeight(i);
 				blocksOfPromises.push(block);
 			} catch (err) {
 				console.log(err);
@@ -135,7 +135,7 @@ class Blockchain {
 		let height = await this.getBlockHeight();
 		for (let i = 0; i < height; i++ ) {
 			try {
-				let block = await this.getBlock(i);
+				let block = await this.getBlockByHeight(i);
 				chain.push(block);
 			} catch (err) {
 				console.log(err);

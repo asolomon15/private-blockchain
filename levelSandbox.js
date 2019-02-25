@@ -82,6 +82,28 @@ class DBModel {
 				});
 		});
 	}
+
+	// Get star block by hash with JSON response
+	getBlockByHash(hash) {
+		let self = this;
+		let block = null;
+		return new Promise(function(resolve, reject){
+			self.db.createReadStream()
+			.on('data', function (data) {
+				let dataEntry  = JSON.parse(data["value"]);
+				if (dataEntry.hash === hash) {
+					console.log(data);
+					block = dataEntry;
+				}
+			})
+			.on('error', function (err){
+				reject(err);
+			})
+			.on('close', function() {
+				resolve(block);
+			});
+		});
+	}
 }
 
 

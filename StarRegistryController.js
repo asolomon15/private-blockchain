@@ -43,7 +43,7 @@ class StarRegistryController {
       path: '/block/{index}',
       handler: async (request, h) => {
         try {
-          const block = await this.blockchain.getBlock(request.params.index);
+          const block = await this.blockchain.getBlockByHeight(request.params.index);
           console.log(block);
           return block;
         } catch (err) {
@@ -62,17 +62,18 @@ class StarRegistryController {
   getBlockByHash() {
     this.server.route({
       method: 'GET',
-      path: '/star/hash',
+      path: '/star/hash:{hash}',
       handler: async (request, h) => {
-
+        console.log(request);
         try {
-          const block = await this.blockchain.getBlock(request.params.hash);
+          const block = await this.blockchain.getBlockByHash(request.params.hash);
+          console.log(block);
           return block;
         } catch (err) {
           return Boom.notFound("Hash #" + request.params.hash + " Not Found");
         }
       }
-    })
+    });
   }
 
   /*
