@@ -12,7 +12,7 @@ Features are below.
 - Creating a Star service API for interacting with the blockchain as well as the mempool.
 - Adding additional DB data to add better blockchain search capabilities.
 
-Even though this project for learning key concepts of bitcoin/blockchain, it actually could be used for discovering new celestial bodies within the cosmos. Just imagine, a decentralized astronomer nodes sharing and validating new planets or stars.   An astronomy node could be connected to a telescope and use that telescope for verification of a new planet or possibly a comet.  Then share that data of the comet with other nodes and those nodes verifying that new planet/comet exists. 
+Even though this project is for learning key concepts of bitcoin/blockchain, it actually could be used for discovering new celestial bodies within the cosmos. Just imagine, a decentralized astronomy nodes sharing and validating new planets or stars.   An astronomy node could be connected to a telescope and use that telescope for verification of a new planet or possibly a comet.  Then share that data of the comet with other nodes and those nodes verifying that new planet/comet exists. 
 
 
 ## Getting Started
