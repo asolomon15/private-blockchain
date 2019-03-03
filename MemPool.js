@@ -64,7 +64,7 @@ class RequestMemPool {
       if (requestEntry.validationWindow >= 0) {
         let isValid = await bitcoinMessage.verify(requestEntry.message, requestEntry.walletAddress, signature);
         if(isValid) {
-          validEntry = {
+          const validEntry = {
             "registerStar": true,
             "status": {
               "address": requestEntry.walletAddress,
@@ -74,11 +74,14 @@ class RequestMemPool {
               "messageSignature": isValid
             }
           };
+          await delete this.memPoolEntries[validEntry.status.address];
+          await delete this.timeoutRequests[validEntry.status.address];
+          this.validMemPoolEntries[validEntry.status.address] = validEntry;
+          console.log("THIS IS THE ENTRY")
+          console.log(this.validMemPoolEntries)
+          console.log("end of this")
+          return validEntry;
         }
-        await delete this.memPoolEntries[validEntry.address];
-        await delete this.timeoutRequests[validEntry.address];
-        this.validMemPoolEntries[validEntry.address] = validEntry;
-        return validEntry;
       }
     }
     return validEntry;
