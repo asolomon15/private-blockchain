@@ -17,7 +17,6 @@ class StarRegistryController {
     /* Blockchain Specfic methods */
     this.blockchain = new Chain.Blockchain();
     this.getBlockByIndex();
-    this.postNewBlock();
     this.getBlockChain();
     this.getBlockByHash();
     this.getBlockByWalletAddress();
@@ -26,6 +25,7 @@ class StarRegistryController {
     this.mempool = new MemPool.RequestMemPool();
     this.requestValidation();
     this.getAllValdaitionRequests();
+    this.getAllValidEntries();
     this.validate();
     this.addBlock();
   }
@@ -34,14 +34,14 @@ class StarRegistryController {
   getBlockByIndex() gets a specific block by the block height.
   if the height of the blockchain isn't valid this method returns a string notifying the user that the block doesn't exist.
   curl -X GET \
-   http://localhost:3000/block/0 \
+   http://localhost:8000/star/block/0 \
    -H 'Cache-Control: no-cache' \
    -H 'Content-Type: application/json'
    */
   getBlockByIndex() {
     this.server.route({
       method: 'GET',
-      path: '/block/{index}',
+      path: '/star/block/{index}',
       handler: async (request, h) => {
         try {
           const block = await this.blockchain.getBlockByHeight(request.params.index);
@@ -60,10 +60,17 @@ class StarRegistryController {
     });
   }
 
+  /*
+  getBlockByHash() gets a specific block by the block's hash.
+  curl -X GET \
+    http://localhost:8000/star/block/hash:{hash}
+    -H 'Cache-Control: no-cache' \
+    -H 'Content-Type: application/json'
+  */
   getBlockByHash() {
     this.server.route({
       method: 'GET',
-      path: '/star/hash:{hash}',
+      path: '/star/block/hash:{hash}',
       handler: async (request, h) => {
         console.log(request);
         try {
@@ -80,6 +87,13 @@ class StarRegistryController {
     });
   }
 
+  /*
+  getBlockByHash() gets a specific block by the block's hash.
+  curl -X GET \
+    http://localhost:8000/star/address:{address}
+    -H 'Cache-Control: no-cache' \
+    -H 'Content-Type: application/json'
+  */
   getBlockByWalletAddress() {
     this.server.route({
       method: 'GET',
@@ -100,54 +114,22 @@ class StarRegistryController {
   }
 
   /*
-  postNewBlock is used for creating a new block and adding this block to the blockchain
-  curl -X POST \
-    http://localhost:3000/block \
-    -H 'Cache-Control: no-cache' \
-    -H 'Content-Type: application/json' \
-    -H 'Postman-Token: 1e551722-4382-49cc-84f1-19d3d433c1e7' \
-    -d '{
-      "data":"This is the second block"
-  }'
-  */
-  postNewBlock() {
-    this.server.route({
-      method: 'POST',
-      path: '/block',
-      handler: (request, h) => {
-        try {
-          if(request.payload.data !== ''){
-            //console.log(request);
-            let newBlock = new Block.Block(request.payload.data);
-            return this.blockchain.addBlock(newBlock);
-          } else {
-            return "New block contains no data";
-          }
-        } catch (err) {
-          // Need to return a 403 forbidden
-          // Since this is a simple block chain i can't see a reason why we can't create a new block but
-          // for API consistancey we need to have a return value.
-          return Boom.forbidden("Unable to create new a new block");
-        }
-      }
-    });
-  }
-
-
-  /*
   addBlock()
       curl -X POST \
-      http://localhost:8000/block \
+      http://localhost:8000/star/block/addblock \
       -H 'Content-Type: application/json' \
       -H 'cache-control: no-cache' \
       -d '{
-            "address":"19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL"
+            "address":"1KP9EfYZnmGtFbYrELX7PpgKSGBMqbnsn"
+            "ra":"79° 42' 44.9"
+            "dec":"12h 16m 1.0s"
+            story:"Found star using https://skyview.gsfc.nasa.gov/current/cgi/query.pl"
           }'
   */
   addBlock() {
     this.server.route({
       method: 'POST',
-      path: '/addblock',
+      path: '/star/block/addblock',
       handler: async (request, h) => {
         const address = await request.payload.address;
         console.log(address);
@@ -169,18 +151,18 @@ class StarRegistryController {
           }
         };
         //return body;
-        let block = new Block.Block(body);
+        const block = new Block.Block(body);
         console.log(block);
         return this.blockchain.addBlock(block);
-        //return block;
       }
     });
   }
 
 
-  /* getBlockChain() is used to pull the entire chain and display
+  /* getBlockChain() is used to pull the entire chain and display.
+     Realistically this shouldn't pull all blocks if the chain is massive.
   curl -X GET \
-   http://localhost:3000/block/all \
+   http://localhost:8000/block/all \
    -H 'Cache-Control: no-cache' \
    -H 'Content-Type: application/json'
    */
@@ -198,7 +180,7 @@ class StarRegistryController {
 
   /* addRequestValidation() send Request to validate
   curl -X POST \
-  http://localhost:8000/requestValidation \
+  http://localhost:8000/star/requestValidation \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -208,7 +190,7 @@ class StarRegistryController {
   requestValidation() {
     this.server.route({
       method: 'POST',
-      path: '/requestValidation',
+      path: '/star/tx/requestValidation',
       handler: async (request, h) => {
         if(request.payload.address !== '') {
           // Need to make sure that this is a valid addresses
@@ -224,16 +206,16 @@ class StarRegistryController {
     });
   }
 
-  /*  validate()
+  /*  getAllValdaitionRequests() This will list all requests
       curl -X GET \
-      http://localhost:8000/requests \
+      http://localhost:8000/star/tx/allrequests \
       -H 'Content-Type: application/json' \
       -H 'cache-control: no-cache'
   */
   getAllValdaitionRequests() {
     this.server.route({
       method: 'GET',
-      path: '/requests',
+      path: '/star/tx/allrequests',
       handler: async (request, h) => {
         //return this.mempool.getRequestPoolEntries();
         //console.log(this.mempool.getRequestPoolEntries());
@@ -242,9 +224,27 @@ class StarRegistryController {
     });
   }
 
+  /*  getAllValdaitionRequests() This will list all requests
+      curl -X GET \
+      http://localhost:8000/star/tx/all \
+      -H 'Content-Type: application/json' \
+      -H 'cache-control: no-cache'
+  */
+  getAllValidEntries() {
+    this.server.route({
+      method: 'GET',
+      path: '/star/tx/allvalid',
+      handler: async (request, h) => {
+        //return this.mempool.getRequestPoolEntries();
+        //console.log(this.mempool.getRequestPoolEntries());
+        return await this.mempool.getValidMemPoolEntries();
+      }
+    });
+  }
+
   /*
   curl -X POST \
-    http://localhost:8000/message-signature/validate \
+    http://localhost:8000/star/tx/validate-message \
     -H 'Content-Type: application/json' \
     -H 'cache-control: no-cache' \
     -d '{
@@ -255,7 +255,7 @@ class StarRegistryController {
   validate() {
     this.server.route({
       method: 'POST',
-      path: '/message-signature/validate',
+      path: '/star/tx/validate-message',
       handler: async (request, h) => {
         // Need to make sure that this is a valid addresses
         if(request.payload.address.length === 34 || request.payload.address.length === 33) {

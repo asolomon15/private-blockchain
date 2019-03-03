@@ -84,6 +84,16 @@ class RequestMemPool {
     return validEntry;
   }
 
+  async getValidMemPoolEntries() {
+    let validEntries = await [];
+    if(Object.keys(this.validMemPoolEntries).length != 0) {
+      for(let walletAddress in this.validMemPoolEntries) {
+        await validEntries.push(this.validMemPoolEntries[walletAddress]);
+      }
+    }
+    return validEntries;
+  }
+
   // verifyAddressRequest(walletAddress) checks the validMemPoolEntries to see if is a valid entry.
   async verifyAddressRequest(walletAddress) {
     if (Object.keys(this.validMemPoolEntries) != 0) {
