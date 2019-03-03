@@ -72,7 +72,6 @@ class StarRegistryController {
       method: 'GET',
       path: '/star/block/hash:{hash}',
       handler: async (request, h) => {
-        console.log(request);
         try {
           const block = await this.blockchain.getBlockByHash(request.params.hash);
           console.log(block);
@@ -114,14 +113,14 @@ class StarRegistryController {
   }
 
   /*
-  addBlock()
+  addBlock() Creates the star block and adds to the blockchain
       curl -X POST \
       http://localhost:8000/star/block/addblock \
       -H 'Content-Type: application/json' \
       -H 'cache-control: no-cache' \
       -d '{
             "address":"1KP9EfYZnmGtFbYrELX7PpgKSGBMqbnsn"
-            "ra":"79° 42' 44.9"
+            "ra":"79° 42 44.9"
             "dec":"12h 16m 1.0s"
             story:"Found star using https://skyview.gsfc.nasa.gov/current/cgi/query.pl"
           }'
@@ -180,7 +179,7 @@ class StarRegistryController {
 
   /* addRequestValidation() send Request to validate
   curl -X POST \
-  http://localhost:8000/star/requestValidation \
+  http://localhost:8000/star/tx/requestValidation \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -226,7 +225,7 @@ class StarRegistryController {
 
   /*  getAllValdaitionRequests() This will list all requests
       curl -X GET \
-      http://localhost:8000/star/tx/all \
+      http://localhost:8000/star/tx/allvalid \
       -H 'Content-Type: application/json' \
       -H 'cache-control: no-cache'
   */
