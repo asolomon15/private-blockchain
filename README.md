@@ -81,7 +81,7 @@ curl -X GET http://localhost:8000/star/tx/allrequests \
 ```
 IIIqiKCl7j3ewxyP2pxqHUHJencbv2zVJjNZkXBlfXG+IE9nrjB30CWqB9yWjlaDhxWj9f0f2fk3liodQkMaKTc=
 ```
-7. You can use this URL to view the request. http://localhost:8000/star/tx/validate-message
+7. Here you can verify that the message was signed. http://localhost:8000/star/tx/validate-message
 ```
 curl -X POST \
      http://localhost:8000/star/tx/validate-message \
@@ -102,7 +102,7 @@ curl -X POST \
     }
 }
 ```
-8. You can view the validated request below. http://localhost:8000/star/tx/allvalid
+8. Here you can view all valid messages that have been signed.  http://localhost:8000/star/tx/allvalid
 ```
 curl -X GET http://localhost:8000/star/tx/allvalid -H 'Content-Type: application/json' -H 'cache-control: no-cache' | python -mjson.tool
 [
@@ -128,7 +128,7 @@ curl -X GET http://localhost:8000/star/tx/allvalid -H 'Content-Type: application
     }
 ]
 ```
-9. add block http://localhost:8000/star/block/addblock
+9. Here is where you can add your Star information and that information can get added to a block http://localhost:8000/star/block/addblock
 ```
 curl -X POST http://localhost:8000/star/block/addblock \
   -H 'Content-Type: application/json' \
@@ -155,7 +155,7 @@ curl -X POST http://localhost:8000/star/block/addblock \
         "previousBlockHash": "d05746c3ad261fa33e116d3d29ee56ab8b8bee5af9c5b812ef3c2dba43189f88"
   }
 ```
-10. Search the blockchain by the height http://localhost:8000/star/block/0.  The height is actually the index starting at 0.
+10. Search the blockchain by the height http://localhost:8000/star/block/[block-height].  The height is actually the index starting at Genesis block 0.
 ```
 curl -X GET http://localhost:8000/star/block/7 -H 'Cache-Control: no-cache' -H 'Content-Type: application/json' | python -mjson.tool
 {
@@ -173,7 +173,7 @@ curl -X GET http://localhost:8000/star/block/7 -H 'Cache-Control: no-cache' -H '
     "time": "1551667075"
 }
 ```
-11. search block hash http://localhost:8000/star/block/hash:[hash]  where the hash is the hash of the block.
+11. search block hash http://localhost:8000/star/block/hash:[hash]  where the hash is the hash of a block.
 ```
 curl -X GET http://localhost:8000/star/block/hash:c71fe9711107237909f5fa8cb416b4975464993f87243b96b1a45c2fa44c01fa -H 'Cache-Control: no-cache' -H 'Content-Type: application/json'  | python -mjson.tool
 {
@@ -191,7 +191,7 @@ curl -X GET http://localhost:8000/star/block/hash:c71fe9711107237909f5fa8cb416b4
     "time": "1551667075"
 }
 ```
-12. Search by wallet address http://localhost:8000/star/address:1Ahm5mDFg1A1KyJJgYsLwfU8xkhpYS5JYJ
+12. Search by wallet address http://localhost:8000/star/address:[WALLET_ADDRESS]. Simply use a wallet address previously added. 
 ```
 curl -X GET  http://localhost:8000/star/address:1KP9EfYZnmGtFbYrELX7PpgKSGBMqbnsn  -H 'Cache-Control: no-cache' -H 'Content-\
     {
