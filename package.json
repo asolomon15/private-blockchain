@@ -11,7 +11,7 @@
   "dependencies": {
     "bitcoinjs-lib": "^4.0.5",
     "bitcoinjs-message": "^2.1.0",
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.1",
     "boom": "^7.3.0",
     "crypto-js": "^3.3.0",
     "hapi": "^17.8.5",
